@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godown Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #92400e, #f59e0b);
+            color: white;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+        }
+
+        .header p {
+            margin-top: 6px;
+            opacity: 0.9;
+        }
+
+        .logout {
+            background: white;
+            color: #92400e;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 25px auto;
+        }
+
+        .section {
+            background: white;
+            padding: 22px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            color: #92400e;
+            margin-bottom: 18px;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .stock-card {
+            background: #fffbeb;
+            border-radius: 14px;
+            padding: 22px;
+            border-top: 5px solid #f59e0b;
+        }
+
+        .product {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .big-number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #92400e;
+        }
+
+        .equivalent {
+            color: #555;
+            margin-top: 8px;
+            font-size: 15px;
+        }
+
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .form-box {
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .form-box h3 {
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+
+        .note {
+            background: #fffbeb;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        form {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        button {
+            border: none;
+            background: #92400e;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #78350f;
+        }
+
+        .table-box {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th {
+            background: #92400e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #fffbeb;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        .shop-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background: #fef3c7;
+            color: #92400e;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+
+    <div>
+        <h1>🏭 Godown Dashboard</h1>
+        <p>Central Stock Management</p>
+    </div>
+
+    <a href="{{ url_for('logout') }}" class="logout">
+        Logout
+    </a>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- CURRENT STOCK -->
+
+    <div class="section">
+
+        <h2>📦 Current Godown Stock</h2>
+
+        <div class="stock-grid">
+
+            {% for stock in stocks %}
+
+            <div class="stock-card">
+
+                <div class="product">
+                    {{ stock.product }}
+                </div>
+
+                {% if stock.product == "Oil" %}
+
+                    <div class="big-number">
+                        {{ stock.quantity|int }} packets
+                    </div>
+
+                    <div class="equivalent">
+                        Each packet = 5 litre
+                    </div>
+
+                    <div class="equivalent">
+                        Total = {{ (stock.quantity * 5)|int }} litre
+                    </div>
+
+                {% else %}
+
+                    <div class="big-number">
+                        {{ stock.quantity|int }} bags
+                    </div>
+
+                    <div class="equivalent">
+                        Each bag = 25 kg
+                    </div>
+
+                    <div class="equivalent">
+                        Total = {{ (stock.quantity * 25)|int }} kg
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- STOCK UPDATE + DISPATCH -->
+
+    <div class="section">
+
+        <h2>⚙️ Stock Management</h2>
+
+        <div class="forms-grid">
+
+
+            <!-- UPDATE STOCK -->
+
+            <div class="form-box">
+
+                <h3>➕ Update Godown Stock</h3>
+
+                <div class="note">
+                    Enter the total number of bags or packets currently available.
+                </div>
+
+                <form method="POST">
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="stock"
+                    >
+
+                    <label>Product</label>
+
+                    <select name="product" required>
+
+                        <option value="Rice">Rice</option>
+                        <option value="Sugar">Sugar</option>
+                        <option value="Dal">Dal</option>
+                        <option value="Oil">Oil</option>
+
+                    </select>
+
+
+                    <label>Quantity</label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        min="0"
+                        step="1"
+                        placeholder="No. of bags / packets"
+                        required
+                    >
+
+
+                    <button type="submit">
+                        Update Stock
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- DISPATCH -->
+
+            <div class="form-box">
+
+                <h3>🚚 Dispatch To Ration Shop</h3>
+
+                <div class="note">
+                    Dispatch bags or packets from godown to the selected shop.
+                </div>
+
+                <form method="POST">
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="dispatch"
+                    >
+
+
+                    <label>Product</label>
+
+                    <select name="product" required>
+
+                        <option value="Rice">Rice</option>
+                        <option value="Sugar">Sugar</option>
+                        <option value="Dal">Dal</option>
+                        <option value="Oil">Oil</option>
+
+                    </select>
+
+
+                    <label>Destination Shop</label>
+
+                    <select name="shop" required>
+
+                        <option value="Shop 01">Shop 01</option>
+                        <option value="Shop 02">Shop 02</option>
+                        <option value="Shop 03">Shop 03</option>
+
+                    </select>
+
+
+                    <label>Dispatch Quantity</label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        min="1"
+                        step="1"
+                        placeholder="No. of bags / packets"
+                        required
+                    >
+
+
+                    <button type="submit">
+                        Dispatch Stock
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- DISPATCH HISTORY -->
+
+    <div class="section">
+
+        <h2>📋 Dispatch History</h2>
+
+        <div class="table-box">
+
+            {% if dispatches %}
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Destination</th>
+                        <th>Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for item in dispatches %}
+
+                    <tr>
+
+                        <td>
+                            {{ item.product }}
+                        </td>
+
+                        <td>
+                            {{ item.quantity|int }}
+                        </td>
+
+                        <td>
+                            {% if item.product == "Oil" %}
+                                Packets
+                            {% else %}
+                                Bags
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="shop-badge">
+                                {{ item.shop }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {{ item.dispatch_date }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="empty">
+                No dispatch records yet.
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</body>
+</html>

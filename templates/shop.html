@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ration Shop Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f7fb;
+            color: #222;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            color: white;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 27px;
+        }
+
+        .header p {
+            margin-top: 6px;
+            opacity: 0.9;
+        }
+
+        .logout {
+            background: white;
+            color: #1d4ed8;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1250px;
+            margin: 25px auto;
+        }
+
+        .section {
+            background: white;
+            padding: 22px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .section h2 {
+            color: #1d4ed8;
+            margin-bottom: 18px;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+        }
+
+        .stock-card {
+            background: #eff6ff;
+            border-radius: 14px;
+            padding: 20px;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .product {
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .quantity {
+            font-size: 25px;
+            color: #1d4ed8;
+            font-weight: bold;
+        }
+
+        .equivalent {
+            color: #555;
+            margin-top: 7px;
+        }
+
+        form {
+            display: grid;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+        }
+
+        button {
+            border: none;
+            background: #1d4ed8;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .form-box {
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .form-box h3 {
+            margin-bottom: 15px;
+            color: #1d4ed8;
+        }
+
+        .table-box {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th {
+            background: #1d4ed8;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .match {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .mismatch {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        .note {
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div>
+        <h1>🏪 Ration Shop Dashboard</h1>
+        <p>{{ shop }}</p>
+    </div>
+
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+</div>
+
+
+<div class="container">
+
+    <!-- CURRENT STOCK -->
+    <div class="section">
+
+        <h2>📦 Current Stock</h2>
+
+        <div class="stock-grid">
+
+            {% for stock in stocks %}
+
+            <div class="stock-card">
+
+                <div class="product">
+                    {{ stock.product }}
+                </div>
+
+                {% if stock.product == "Oil" %}
+
+                    <div class="quantity">
+                        {{ stock.quantity|int }} packets
+                    </div>
+
+                    <div class="equivalent">
+                        {{ (stock.quantity * 5)|int }} litre
+                    </div>
+
+                {% else %}
+
+                    <div class="quantity">
+                        {{ stock.quantity|int }} bags
+                    </div>
+
+                    <div class="equivalent">
+                        {{ (stock.quantity * 25)|int }} kg
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- RECEIVE + DISTRIBUTE -->
+    <div class="section">
+
+        <h2>🔄 Stock Management</h2>
+
+        <div class="forms-grid">
+
+            <!-- RECEIVE -->
+            <div class="form-box">
+
+                <h3>📥 Receive From Godown</h3>
+
+                <div class="note">
+                    Enter the bags/packets actually received from godown.
+                </div>
+
+                <form method="POST">
+
+                    <input type="hidden" name="action" value="receive">
+
+                    <label>Product</label>
+
+                    <select name="product" required>
+
+                        <option value="Rice">Rice</option>
+                        <option value="Sugar">Sugar</option>
+                        <option value="Dal">Dal</option>
+                        <option value="Oil">Oil</option>
+
+                    </select>
+
+
+                    <label>Received Quantity</label>
+
+                    <input
+                        type="number"
+                        name="received"
+                        min="0"
+                        step="1"
+                        placeholder="No. of bags / packets"
+                        required
+                    >
+
+                    <button type="submit">
+                        Receive Stock
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <!-- DISTRIBUTE -->
+            <div class="form-box">
+
+                <h3>📤 Distribute Ration</h3>
+
+                <div class="note">
+                    Rice, Sugar and Dal → kg &nbsp; | &nbsp; Oil → litre
+                </div>
+
+                <form method="POST">
+
+                    <input type="hidden" name="action" value="distribute">
+
+
+                    <label>Ration Card Number</label>
+
+                    <input
+                        type="text"
+                        name="ration_card"
+                        placeholder="Example: RC1001"
+                        required
+                    >
+
+
+                    <label>Product</label>
+
+                    <select name="product" required>
+
+                        <option value="Rice">Rice</option>
+                        <option value="Sugar">Sugar</option>
+                        <option value="Dal">Dal</option>
+                        <option value="Oil">Oil</option>
+
+                    </select>
+
+
+                    <label>Quantity</label>
+
+                    <input
+                        type="number"
+                        name="quantity"
+                        min="0.1"
+                        step="0.1"
+                        placeholder="kg / litre"
+                        required
+                    >
+
+                    <button type="submit">
+                        Distribute
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RECEIVING HISTORY -->
+    <div class="section">
+
+        <h2>🚚 Receiving Verification</h2>
+
+        <div class="table-box">
+
+            {% if receiving %}
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Expected</th>
+                        <th>Received</th>
+                        <th>Difference</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in receiving %}
+
+                    <tr>
+
+                        <td>{{ item.product }}</td>
+
+                        <td>{{ item.expected|int }}</td>
+
+                        <td>{{ item.received|int }}</td>
+
+                        <td>{{ item.difference|int }}</td>
+
+                        <td>
+                            {% if item.status == "MATCH" %}
+                                <span class="match">MATCH</span>
+                            {% else %}
+                                <span class="mismatch">
+                                    MISMATCH
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ item.receive_date }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="empty">
+                No receiving records yet.
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- MEMBERS -->
+    <div class="section">
+
+        <h2>👨‍👩‍👧 Registered Members</h2>
+
+        <div class="table-box">
+
+            {% if families %}
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Ration Card</th>
+                        <th>Family Name</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for family in families %}
+
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ family.ration_card }}</td>
+                        <td>{{ family.family_name }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="empty">
+                No members found.
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- DISTRIBUTION HISTORY -->
+    <div class="section">
+
+        <h2>📋 Distribution History</h2>
+
+        <div class="table-box">
+
+            {% if distributions %}
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Ration Card</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Unit</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for item in distributions %}
+
+                    <tr>
+                        <td>{{ item.ration_card }}</td>
+                        <td>{{ item.product }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.measure }}</td>
+                        <td>{{ item.distribution_date }}</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+            {% else %}
+
+            <div class="empty">
+                No distribution records yet.
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
